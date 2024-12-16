@@ -71,7 +71,7 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1.RunFunctionRequest) 
 
 	f.log.Debug("template", "template", tg.GetTemplates())
 
-	tmpl, err := GetNewTemplateWithFunctionMaps(in.Delims).Parse(tg.GetTemplates())
+	tmpl, err := GetNewTemplateWithFunctionMaps(in.Delims, req.GetCredentials()).Parse(tg.GetTemplates())
 	if err != nil {
 		response.Fatal(rsp, errors.Wrap(err, "invalid function input: cannot parse the provided templates"))
 		return rsp, nil

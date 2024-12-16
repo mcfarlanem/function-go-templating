@@ -12,10 +12,13 @@ import (
 	xpv1 "github.com/crossplane/crossplane-runtime/apis/common/v1"
 	"github.com/crossplane/crossplane-runtime/pkg/fieldpath"
 	"github.com/crossplane/function-sdk-go/errors"
+	fnv1 "github.com/crossplane/function-sdk-go/proto/v1"
 	"gopkg.in/yaml.v3"
 )
 
 const recursionMaxNums = 1000
+
+var credentials map[string]*fnv1.Credentials
 
 var funcMaps = []template.FuncMap{
 	{
@@ -26,11 +29,14 @@ var funcMaps = []template.FuncMap{
 		"setResourceNameAnnotation": setResourceNameAnnotation,
 		"getComposedResource":       getComposedResource,
 		"getCompositeResource":      getCompositeResource,
+		"getCredentialData":         getCredentialData,
 	},
 }
 
-func GetNewTemplateWithFunctionMaps(delims *v1beta1.Delims) *template.Template {
+func GetNewTemplateWithFunctionMaps(delims *v1beta1.Delims, creds map[string]*fnv1.Credentials) *template.Template {
 	tpl := template.New("manifests")
+
+	credentials = creds
 
 	if delims != nil {
 		if delims.Left != nil && delims.Right != nil {
@@ -129,4 +135,16 @@ func getCompositeResource(req map[string]any) map[string]any {
 	}
 
 	return cr
+}
+
+func getCredentialData(name string) map[string][]byte {
+	var data map[string][]byte
+	switch credentials[name].GetSource().(type) {
+	case *fnv1.Credentials_CredentialData:
+		data = credentials[name].GetCredentialData().GetData()
+	default:
+		return nil
+	}
+
+	return data
 }

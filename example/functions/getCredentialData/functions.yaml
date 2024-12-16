@@ -1,0 +1,8 @@
+apiVersion: pkg.crossplane.io/v1beta1
+kind: Function
+metadata:
+  name: function-go-templating
+spec:
+  package: 123690211197.dkr.ecr.us-east-2.amazonaws.com/crossplane/function/go-templating:v0.8.2
+  packagePullSecrets: 
+    - name: moxility-aws-ecr
